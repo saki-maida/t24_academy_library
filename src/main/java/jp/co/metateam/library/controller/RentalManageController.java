@@ -17,9 +17,13 @@ import jp.co.metateam.library.service.AccountService;
 import jp.co.metateam.library.service.RentalManageService;
 import jp.co.metateam.library.service.StockService;
 import lombok.extern.log4j.Log4j2;
+import jp.co.metateam.library.model.Account;
+import jp.co.metateam.library.model.AccountDto;
 import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.RentalManageDto;
 import jp.co.metateam.library.values.RentalStatus;
+import jp.co.metateam.library.model.Stock;
+import jp.co.metateam.library.model.StockDto;
 
 
 
@@ -67,9 +71,14 @@ public class RentalManageController {
     @GetMapping("/rental/add")
     public String add(Model model) {
         List<RentalManage> rentalManageList = this.rentalManageService.findAll();
+        List <Stock> stockList = this.stockService.findAll();
+        List <Account> accounts = this.accountService.findAll();
 
+       
         model.addAttribute("rentalManageList", rentalManageList);
         model.addAttribute("rentalStatus", RentalStatus.values());
+        model.addAttribute("stockList", stockList);
+        model.addAttribute("accounts",accounts);
 
         if (!model.containsAttribute("rentalManageDto")) {
             model.addAttribute("rentalManageDto", new RentalManageDto());

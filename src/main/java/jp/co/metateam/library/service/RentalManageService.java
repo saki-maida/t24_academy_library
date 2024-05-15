@@ -88,4 +88,28 @@ public class RentalManageService {
 
         return rentalManage;
     }
+    @Transactional 
+    public void update(Long id,RentalManageDto rentalManageDto) throws Exception {
+        try {
+            // 既存レコード取得
+            Account account = this.accountRepository.findByEmployeeId(rentalManageDto.getEmployeeId()).orElse(null);
+            Stock stock = this.stockRepository.findById(rentalManageDto.getStockId()).orElse(null);
+            RentalManage updateTRental = findById(id);
+            if (updateTRental == null) {
+                throw new Exception("RentalManage record not found.");
+            }
+
+            updateTRental.setAccount(account);
+            updateTRental.setExpectedRentalOn(rentalManageDto.getExpectedRentalOn());
+            updateTRental.setExpectedReturnOn(rentalManageDto.getExpectedReturnOn());
+            updateTRental.setStock(stock);
+            updateTRental.setStatus(rentalManageDto.getStatus());
+            
+
+            // データベースへの保存
+            this.rentalManageRepository.save(updateTRental);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }

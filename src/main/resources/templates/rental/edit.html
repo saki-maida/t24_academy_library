@@ -20,10 +20,15 @@
                         <a th:href="@{/rental/index}" class="link">← 一覧へ戻る</a>
                     </span>
                 </div>
+                <th:block th:if = "${!#strings.isEmpty(errorMsg)}">
+                    <div>
+                        <span th:text="${errorMsg}"></span>
+                    </div>
+                </th:block>
                 <form id="rental_edit_form" th:object="${rentalManageDto}" th:action="@{/rental/{id}/edit(id=*{id})}" method="post">
                     <div class="mb30">
                         <label class="input_title" for="employeeId">社員番号<span class="text-red asterisk">＊</span></label>
-                        <select id="employeeId" class="form_input" name="employeeId" required>
+                        <select id="employeeId" class="form_input" name="employeeId">
                             <option value="">社員番号を選択</option>
                             <option th:each="account : ${accounts}" th:value="${account.employeeId}"
                                 th:text="${account.employeeId + ' ' + account.name}"
@@ -37,7 +42,7 @@
                                 class="text-red asterisk">＊</span></label>
                         <input type="date" id="expectedRentalOn" class="form_input" name="expectedRentalOn"
                             th:value="${#dates.format(rentalManageDto.expectedRentalOn, ('yyyy-MM-dd'))}"
-                            placeholder="貸出予定日を入力" required>
+                            placeholder="貸出予定日を入力" >
                         <div class="error_msg" th:if="${#fields.hasErrors('expectedRentalOn')}"
                             th:errors="*{expectedRentalOn}"></div>
                     </div>
@@ -46,14 +51,14 @@
                                 class="text-red asterisk">＊</span></label>
                         <input type="date" id="expectedReturnOn" class="form_input" name="expectedReturnOn"
                             th:value="${#dates.format(rentalManageDto.expectedReturnOn, ('yyyy-MM-dd'))}"
-                            placeholder="返却予定日を入力" required>
+                            placeholder="返却予定日を入力" >
                         <div class="error_msg" th:if="${#fields.hasErrors('expectedReturnOn')}"
                             th:errors="*{expectedReturnOn}"></div>
                     </div>
                     <div class="mb30">
                         <label class="input_title" for="stockMngNumber">在庫管理番号<span
                                 class="text-red asterisk">＊</span></label>
-                        <select id="stockMngNumber" class="form_input" name="stockId" required>
+                        <select id="stockMngNumber" class="form_input" name="stockId">
                             <option value="">在庫管理番号を選択</option>
                             <option th:each="stock : ${stockList}" th:value="${stock.id}"
                                 th:text="${stock.id + ' ' + stock.bookMst.title}"
@@ -64,7 +69,7 @@
                     <div class="mb30">
                         <label class="input_title" for="rentalStatus">貸出ステータス<span
                                 class="text-red asterisk">＊</span></label>
-                        <select id="rentalStatus" class="form_input" name="status" required>
+                        <select id="rentalStatus" class="form_input" name="status">
                             <option value="">ステータスを選択</option>
                             <option th:each="status : ${rentalStatus}" th:value="${status.value}"
                                 th:text="${status.text}" th:selected="${status.value == rentalManageDto.status}">

@@ -1,6 +1,8 @@
 package jp.co.metateam.library.controller;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,11 +35,13 @@ import jp.co.metateam.library.model.StockDto;
  */
 @Log4j2
 @Controller
+
 public class RentalManageController {
 
     private final AccountService accountService;
     private final RentalManageService rentalManageService;
     private final StockService stockService;
+    private String rentalErrorAdd;
 
     @Autowired
     public RentalManageController(
@@ -71,7 +75,7 @@ public class RentalManageController {
 
     @GetMapping("/rental/add")
     public String add(Model model) {
-        List <Stock> stockList = this.stockService.findAll();
+        List <Stock> stockList = this.stockService.findStockAvailableAll();
         List <Account> accounts = this.accountService.findAll();
 
         model.addAttribute("rentalStatus", RentalStatus.values());
@@ -89,9 +93,20 @@ public class RentalManageController {
     @PostMapping("/rental/add")
     public String save(@Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
         try {
-            if (result.hasErrors()) {
-                throw new Exception("Validation error.");
+
+
+           Long addOtherReservations = rentalManageService.addOtherReservations(rentalManageDto.getStockId());
+           Long addOtherDates = rentalManageService.addOtherDates(rentalManageDto.getStockId(),rentalManageDto.getExpectedReturnOn(),rentalManageDto.getExpectedRentalOn());
+
+           if(addOtherReservations != addOtherDates){
+               rentalErrorAdd = "この期間は貸出できません";
+                        result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalErrorAdd));
+                        result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalErrorAdd));
             }
+           if (result.hasErrors()) {
+               throw new Exception("Stock unavailable error");
+            }
+
             // 登録処理
             this.rentalManageService.save(rentalManageDto);
 
@@ -111,7 +126,6 @@ public class RentalManageController {
 public String edit(@PathVariable("id") Long id, Model model) {
     List <Stock> stockList = this.stockService.findAll();  //在庫管理番号のプルダウンリスト作成
     List <Account> accounts = this.accountService.findAll(); //社員番号のプルダウンリスト作成
-    List <RentalManage> rentalManageList = this.rentalManageService.findAll();
  
         model.addAttribute("stockList", stockList); //在庫管理番号のリストを表示（プルダウン）
         model.addAttribute("accounts", accounts);  //社員番号のリストを表示（プルダウン）
@@ -139,21 +153,41 @@ public String edit(@PathVariable("id") Long id, Model model) {
 }
 
 @PostMapping("/rental/{id}/edit")
-public String update(@PathVariable("id") String id, @Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra,Model model) {
+public String update(@PathVariable("id") String id, @Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra,Model model)throws Exception {
     try {
+        // if (result.hasErrors()) {
+        //     throw new Exception("Validation error.");
+        // }
 
         RentalManage rentalManage = this.rentalManageService.findById(Long.valueOf(id));
 
-        String errMsgOfStatus = rentalManageDto.validateStatus(rentalManage.getStatus());
+        Optional<String> errMsgOfStatus = rentalManageDto.validateStatus(rentalManage.getStatus());
 
-        if (errMsgOfStatus!= null){
-            result.addError(new FieldError("rentalManageDto", "status", errMsgOfStatus));
+        if (errMsgOfStatus.isPresent()){
+            result.addError(new FieldError("rentalManageDto", "status", errMsgOfStatus.get()));
+            throw new Exception("Validation error.");
+        }
+
+        int statusCheck = rentalManageDto.getStatus();
+
+        if (statusCheck == RentalStatus.RENT_WAIT.getValue() || statusCheck == RentalStatus.RENTAlING.getValue()) {
+        
+            Long otherReservations = rentalManageService.otherReservations(rentalManageDto.getStockId(),rentalManageDto.getId());
+            Long otherDates = rentalManageService.otherDates(rentalManageDto.getStockId(),rentalManageDto.getId(),rentalManageDto.getExpectedReturnOn(),rentalManageDto.getExpectedRentalOn());
+
+            if(otherReservations != otherDates){
+                ra.addFlashAttribute("errorMsg","選択された在庫は現在、貸出できません。");
+                throw new Exception("Stock unavailable error");
+            }
+            if(otherReservations < 1){
+                ra.addFlashAttribute("errorMsg","選択された在庫は新規で貸出登録してください。");
+                throw new Exception("Stock unavailable error");
+             }   
         }
         if (result.hasErrors()) {
             throw new Exception("Validation error.");
         }
-    
-         // 更新処理
+        // 更新処理
          this.rentalManageService.update(Long.valueOf(id), rentalManageDto);
         
          
@@ -161,19 +195,21 @@ public String update(@PathVariable("id") String id, @Valid @ModelAttribute Renta
 
     } catch (Exception e) {
         log.error(e.getMessage());
+
+        RentalManage rentalManage = this.rentalManageService.findById(Long.valueOf(id));
+
+        rentalManageDto.setId(rentalManage.getId());
+        rentalManageDto.setEmployeeId(rentalManage.getAccount().getEmployeeId());
+        rentalManageDto.setExpectedReturnOn(rentalManage.getExpectedReturnOn());
+        rentalManageDto.setExpectedRentalOn(rentalManage.getExpectedRentalOn());
+        rentalManageDto.setStockId(rentalManage.getStock().getId());
+        rentalManageDto.setStatus(rentalManage.getStatus());
  
-        ra.addFlashAttribute("RentalManageDto", rentalManageDto);
-        ra.addFlashAttribute("org.springframework.validation.BindingResult.stockDto", result);
-
-        List <Stock> stockList = this.stockService.findStockAvailableAll();
-        List <Account> accounts = this.accountService.findAll();
-
-        model.addAttribute("stockList", stockList); 
-        model.addAttribute("accounts", accounts);  
-        model.addAttribute("rentalStatus", RentalStatus.values());  
+        ra.addFlashAttribute("rentalManageDto", rentalManageDto);
+        ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManageDto", result);
        
 
-        return "rental/edit";
+        return String.format("redirect:/rental/%s/edit", id);
     }
 }
 }

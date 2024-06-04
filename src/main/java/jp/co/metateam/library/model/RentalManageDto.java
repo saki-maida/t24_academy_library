@@ -1,6 +1,8 @@
 package jp.co.metateam.library.model;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
@@ -71,4 +73,29 @@ public class RentalManageDto {
         }
         return Optional.empty();
     }
+    public String DateError(RentalManage rentalManage, RentalManageDto rentalManageDto) {
+ 
+        LocalDate nowDate = LocalDate.now(ZoneId.of("Asia/Tokyo"));
+     
+        Integer prestatus = rentalManage.getStatus();
+        Integer poststatus = rentalManageDto.getStatus();
+     
+        LocalDate expectedRentalOn = rentalManageDto.getExpectedRentalOn().toInstant().atZone(ZoneId.systemDefault())
+            .toLocalDate();
+     
+        LocalDate expectedReturnOn = rentalManageDto.getExpectedReturnOn().toInstant().atZone(ZoneId.systemDefault())
+            .toLocalDate();
+     
+        if (prestatus == 0 && poststatus == 1) {
+          if (!expectedRentalOn.equals(nowDate)) {
+            return "現在の日付を選択してください";
+          }
+        }
+        if (prestatus == 1 && poststatus == 2) {
+          if (!expectedReturnOn.equals(nowDate)) {
+            return "現在日付に選択してください";
+          }
+        }
+        return null;
+      }
 }

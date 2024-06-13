@@ -247,6 +247,8 @@ public class RentalManageController {
 
 
         if(statusList == null){
+            FieldError fieldError = new FieldError("rentalManageDto", "stockId", "現在この書籍は貸出できません");
+            result.addError(fieldError);
             throw new Exception("errorMessage");
         }
 

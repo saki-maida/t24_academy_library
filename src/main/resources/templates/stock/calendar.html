@@ -36,10 +36,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
-                                <td th:each="stock, stat : ${stocks}" th:text="${stock}"></td>
-                            </tr>
+                            <tr th:each="stock : ${stocks}">
+                                 <td th:text="${stock[0]}"></td>
+                                 <td th:text="${stock[1]}"></td>
+                                 <td th:text="${stock[2]}"></td>
+                             </tr>
+                             <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
                         </tbody>
                     </table>
                 </div>

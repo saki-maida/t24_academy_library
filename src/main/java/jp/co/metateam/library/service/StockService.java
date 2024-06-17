@@ -138,26 +138,26 @@ public class StockService {
         List<BookMst> bookData = findAllBookData();
     
         //書籍数分ループ
-        for (BookMst bookLoop : bookData){
-            //bigValuesっていう大きな箱の中の各書籍の情報を入れるvaluesって箱
-            List<String> values = new ArrayList<>();
-            //valuesって箱にループしてきたタイトルをつめてる
-            values.add(bookLoop.getTitle());
+        for (BookMst book : bookData){
+            //bigValuesっていう大きな箱の中の各書籍の情報を入れるbookInfoって箱
+            List<String> bookInfo = new ArrayList<>();
+            //bookInfoって箱にループしてきたタイトルをつめてる
+            bookInfo.add(book.getTitle());
 
             //利用可能総在庫数
-            List<Stock> availableStocks = findAllAvailableStockData(bookLoop.getId());
+            List<Stock> availableStocks = findAllAvailableStockData(book.getId());
             //数字を文字列に変換　　　　　　　　　　　　　　↓.sizeでavailableStocksの中身を数えてる
             String availableStocksCount = String.valueOf(availableStocks.size());
-            //数えたやつをvaluesに追加
-            values.add(availableStocksCount);
+            //数えたやつをbookInfoに追加
+            bookInfo.add(availableStocksCount);
 
-            List<String> stockId = new ArrayList<>();
+
+            List<String> stockIdList = new ArrayList<>();
             for(Stock stock : availableStocks) {
-                stockId.add(stock.getId());
+             //stockIdって箱にループしてきたIdをつめてる
+                stockIdList.add(stock.getId());
             }
 
-
-            //日付ごとの利用可能在庫数を入れるリストを作る
 
             //日付分ループ
              for(int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++){
@@ -166,19 +166,19 @@ public class StockService {
                 //LocalDate型のlocalDateををDate型に変換しdateに入れる
                 Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 //日ごとの利用可能在庫数
-                Long scheduledRentaWaitDataCount = scheduledRentaWaitData(date,stockId);
-                Long scheduledRentalingDataCount = scheduledRentalingData(date,stockId);
+                Long scheduledRentaWaitDataCount = scheduledRentaWaitData(date,stockIdList);
+                Long scheduledRentalingDataCount = scheduledRentalingData(date,stockIdList);
 
-                Long total =  (availableStocks.size()) - ( scheduledRentaWaitDataCount + scheduledRentalingDataCount);
-
+                Long total =  availableStocks.size() - (scheduledRentaWaitDataCount + scheduledRentalingDataCount);
+                //計算してtotalに入れたデータを String型のtotalValueに変換
                 String totalValue = Long.toString(total);
 
-                ///日付ごとの利用可能在庫数をリストに入れる
-
+                //取得した日付ごとの利用可能在庫数をbookInfoに入れる
+                bookInfo.add(totalValue);
 
              }
 
-            bigValues.add(values);
+            bigValues.add(bookInfo);
 
         }
         return bigValues;

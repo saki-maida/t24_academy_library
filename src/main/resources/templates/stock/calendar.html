@@ -37,11 +37,11 @@
                         </thead>
                         <tbody>
                             <tr th:each="stock : ${stocks}">
-                                 <td th:text="${stock[0]}"></td>
-                                 <td th:text="${stock[1]}"></td>
-                                 <td th:text="${stock[2]}"></td>
-                             </tr>
-                             <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
+                                <td th:each="val : ${stock}">
+                                    <p th:text="${val} gt '0' ? ${val} : '×'"></p>
+                                </td>
+                            </tr>
+                            <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
                         </tbody>
                     </table>
                 </div>

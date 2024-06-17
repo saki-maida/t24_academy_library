@@ -36,12 +36,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="stock : ${stocks}">
-                                <td th:each="val : ${stock}">
-                                    <p th:text="${val} gt '0' ? ${val} : '×'"></p>
+                            <tr th:each="stock : ${stocks}"> <!--ストックスの要素をストックが一個ずつ取り出してる -->
+                                <td th:each="val, i : ${stock}"> <!--valとindexがわかる -->
+                                    <p th:if="${i.index lt 2}" th:text="${val}"></p>
+                                    <div th:unless="${i.index lt 2}">
+                                        <!--1個以上だったらリンクかつ、数字を表示、0個だったら×を表示 -->
+                                        <!-- 個数チェックの分岐 -->
+                                         <!-- 在庫数が1個以上の場合のみ表示する -->
+                                        <a th:if="${val} gt 0" th:text="${val}" th:href="@{/rental/add(val=${val})}"></a>
+                                        <p th:unless="${val} gt 0" th:text="'×'"></p>
+                                    </div>
                                 </td>
-                            </tr>
                             <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
+                            </tr>
                         </tbody>
                     </table>
                 </div>

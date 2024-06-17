@@ -136,6 +136,7 @@ public class StockService {
         List<List<String>> bigValues = new ArrayList<>();
         //BookMstテーブルのすべての書籍情報をリストに追加
         List<BookMst> bookData = findAllBookData();
+        LocalDate today = LocalDate.now();
     
         //書籍数分ループ
         for (BookMst book : bookData){
@@ -173,6 +174,10 @@ public class StockService {
                 //計算してtotalに入れたデータを String型のtotalValueに変換
                 String totalValue = Long.toString(total);
 
+                if (today.isAfter(localDate)) {
+                    totalValue = "0";
+                }
+                
                 //取得した日付ごとの利用可能在庫数をbookInfoに入れる
                 bookInfo.add(totalValue);
 

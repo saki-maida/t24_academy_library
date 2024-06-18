@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
@@ -72,17 +73,29 @@ public class RentalManageController {
     }
 
     @GetMapping("/rental/add")
-    public String add(Model model) {
+    public String add(@RequestParam(required = false) String rentalDay, @RequestParam(required = false) String val, Model model) {
         List<Stock> stockList = this.stockService.findStockAvailableAll();
         List<Account> accounts = this.accountService.findAll();
 
         model.addAttribute("rentalStatus", RentalStatus.values());
         model.addAttribute("stockList", stockList);
         model.addAttribute("accounts", accounts);
+        model.addAttribute("rentalDay",rentalDay);
+        model.addAttribute("val",val);
+
+        RentalManageDto rentalManageDto = new RentalManageDto();
+        //String型をDate型に変換
+        Date rentalDayDate  = java.sql.Date.valueOf(rentalDay);
+        rentalManageDto.setExpectedRentalOn(rentalDayDate);
+        rentalManageDto.setStockId(val);
+
+        model.addAttribute("rentalManageDto",rentalManageDto);
+    
 
         if (!model.containsAttribute("rentalManageDto")) {
             model.addAttribute("rentalManageDto", new RentalManageDto());
         }
+
 
         return "rental/add";
     }

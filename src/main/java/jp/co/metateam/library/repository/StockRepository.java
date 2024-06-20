@@ -22,10 +22,15 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     
     List<Stock> findByBookMstIdAndStatus(Long book_id,Integer status);
 
-// //利用可能な総在庫数を取得
-//     @Query("SELECT s FROM Stock s WHERE s.book.id = ?1 AND stock.status = 0 ")
-//     List<Stock> findAllStockDate(Long book_id);
-
+// 利用可能な総在庫数を取得
 @Query("SELECT s FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 AND s.deletedAt IS NULL")
 List<Stock> findAllAvailableStockData(Long bookId);
+
+ 
+// @Query("SELECT DISTINCT s FROM Stock s LEFT OUTER JOIN RentalManage rm ON s.id = rm.stock.id WHERE ?1 BETWEEN rm.expectedRentalOn AND rm.expectedReturnOn AND s.bookMst.id = ?2 AND s.status = 0 AND deletedAt IS null")
+//   List<Stock> lendableBook(Date choiceDate, Long id);
+
+// @Query("SELECT s FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 " + "AND deletedAt IS null")
+//   List<Stock> bookStockAvailable(Long id);
+
 }

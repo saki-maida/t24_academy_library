@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.repository.BookMstRepository;
@@ -64,14 +65,27 @@ public class StockService {
         return this.stockRepository.findAllAvailableStockData(bookId);
     }
 
+    // @Transactional
+    // public List<Stock> lendableBook(Date choiceDate, Long id) {
+    //     return this.stockRepository.lendableBook(choiceDate, id);
+    // }
+
+    // @Transactional
+    // public List<Stock> bookStockAvailable(Long id) {
+    //     return this.stockRepository.bookStockAvailable(id);
+    // }
+
     @Transactional
     public Long scheduledRentaWaitData(Date day, List<String>stock_id) {
         return this.rentalManageRepository.scheduledRentaWaitData(day, stock_id);
     }
 
     @Transactional
-    public Long scheduledRentalingData(Date day, List<String>stock_id) {
-        return this.rentalManageRepository.scheduledRentalingData(day,stock_id);
+    public long scheduledRentalingData(Date date, List<String> stockId) {
+      List<RentalManage> unavailableStockLists = this.rentalManageRepository.scheduledRentalingData(date, stockId);
+      long unavailableStockNum =unavailableStockLists.size();
+ 
+      return unavailableStockNum;
     }
 
     @Transactional 
@@ -158,7 +172,7 @@ public class StockService {
              //stockIdって箱にループしてきたIdをつめてる
                 stockIdList.add(stock.getId());
             }
-
+            
 
             //日付分ループ
              for(int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++){
@@ -180,7 +194,7 @@ public class StockService {
                 
                 //取得した日付ごとの利用可能在庫数をbookInfoに入れる
                 bookInfo.add(totalValue);
-
+                //bookInfo.addAll(stockIdList);
              }
 
             bigValues.add(bookInfo);

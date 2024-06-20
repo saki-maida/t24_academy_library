@@ -38,7 +38,7 @@ public interface RentalManageRepository extends JpaRepository<RentalManage, Long
     Long scheduledRentaWaitData(Date day, List<String>stock_id);
 
     //ステータスが「貸出中」の他の貸出期間と被っている情報
-    @Query("SELECT COUNT (rm) FROM RentalManage rm WHERE rm.status = 1 AND (rm.rentaledAt <= ?1 AND rm.expectedReturnOn >= ?1) AND rm.stock.id IN ?2")
-    Long scheduledRentalingData(Date day, List<String>stock_id);
+    @Query(value ="SELECT * FROM rental_manage as rm WHERE CAST(rm.rentaled_At as date) <= :date AND :date <= rm.expected_return_on AND rm.stock_id IN(:stockId) AND rm.status= 1",nativeQuery = true)
+    List<RentalManage> scheduledRentalingData(Date date, List<String> stockId);
 
 }

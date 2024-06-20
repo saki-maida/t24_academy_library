@@ -88,14 +88,19 @@ public class RentalManageController {
         if (!model.containsAttribute("rentalManageDto")) {
             model.addAttribute("rentalManageDto", new RentalManageDto());
         }
-        
-        String stockId = this.rentalManageService.getStockId(rentalDay,title);
-  
+
         RentalManageDto rentalManageDto = new RentalManageDto();
 
-        rentalManageDto.setExpectedRentalOn(rentalDay);
-        rentalManageDto.setStockId(stockId);
+        if(rentalDay != null){
+            rentalManageDto.setExpectedRentalOn(rentalDay);
+        }
 
+
+        if(title != null){
+            String stockId = this.rentalManageService.getStockId(rentalDay,title);
+            rentalManageDto.setStockId(stockId);
+        }
+  
         model.addAttribute("rentalManageDto",rentalManageDto);
 
         return "rental/add";

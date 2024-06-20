@@ -84,25 +84,18 @@ public class RentalManageController {
         model.addAttribute("stockList", stockList);
         model.addAttribute("accounts", accounts);
 
+        if (rentalDay != null && title != null) {
+            RentalManageDto rentalManageDto = new RentalManageDto();
+            String stockId = this.rentalManageService.getStockId(rentalDay, title);
+            rentalManageDto.setExpectedRentalOn(rentalDay);
+            rentalManageDto.setStockId(stockId);
+
+            model.addAttribute("rentalManageDto",rentalManageDto);
+        }
 
         if (!model.containsAttribute("rentalManageDto")) {
             model.addAttribute("rentalManageDto", new RentalManageDto());
         }
-
-        RentalManageDto rentalManageDto = new RentalManageDto();
-
-        if(rentalDay != null){
-            rentalManageDto.setExpectedRentalOn(rentalDay);
-        }
-
-
-        if(title != null){
-            String stockId = this.rentalManageService.getStockId(rentalDay,title);
-            rentalManageDto.setStockId(stockId);
-        }
-  
-        model.addAttribute("rentalManageDto",rentalManageDto);
-
         return "rental/add";
     }
 

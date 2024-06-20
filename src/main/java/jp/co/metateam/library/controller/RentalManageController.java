@@ -1,10 +1,13 @@
 package jp.co.metateam.library.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -73,16 +76,9 @@ public class RentalManageController {
     }
 
     @GetMapping("/rental/add")
-    public String add(@RequestParam(required = false) String rentalDay, @RequestParam(required = false) String val, Model model) {
+    public String add(@RequestParam(required = false)@DateTimeFormat(pattern = "yyyy-MM-dd") Date rentalDay, @RequestParam(required = false) String title, Model model) {
         List<Stock> stockList = this.stockService.findStockAvailableAll();
         List<Account> accounts = this.accountService.findAll();
-
-        /*
-         * １、タイトルからbook_id
-         * ２、１のidとbookmstのbookidに紐づく、かつ削除フラグnull在庫管理番号すべて
-         * ３、貸出ステータスが0,1かつ"rentalDay"かぶっているの全レコード取得
-         * ４，貸出可能な在庫情報=総利用可能在庫情報-３で取得してきた値
-         */
 
         model.addAttribute("rentalStatus", RentalStatus.values());
         model.addAttribute("stockList", stockList);
@@ -92,15 +88,15 @@ public class RentalManageController {
         if (!model.containsAttribute("rentalManageDto")) {
             model.addAttribute("rentalManageDto", new RentalManageDto());
         }
-
+        
+        String stockId = this.rentalManageService.getStockId(rentalDay,title);
+  
         RentalManageDto rentalManageDto = new RentalManageDto();
-        //String型をDate型に変換
-        Date rentalDayDate  = java.sql.Date.valueOf(rentalDay);
 
-        rentalManageDto.setExpectedRentalOn(rentalDayDate);
+        rentalManageDto.setExpectedRentalOn(rentalDay);
+        rentalManageDto.setStockId(stockId);
 
         model.addAttribute("rentalManageDto",rentalManageDto);
-    
 
         return "rental/add";
     }

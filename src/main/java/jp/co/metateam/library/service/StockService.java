@@ -65,16 +65,6 @@ public class StockService {
         return this.stockRepository.findAllAvailableStockData(bookId);
     }
 
-    // @Transactional
-    // public List<Stock> lendableBook(Date choiceDate, Long id) {
-    //     return this.stockRepository.lendableBook(choiceDate, id);
-    // }
-
-    // @Transactional
-    // public List<Stock> bookStockAvailable(Long id) {
-    //     return this.stockRepository.bookStockAvailable(id);
-    // }
-
     @Transactional
     public Long scheduledRentaWaitData(Date day, List<String>stock_id) {
         return this.rentalManageRepository.scheduledRentaWaitData(day, stock_id);

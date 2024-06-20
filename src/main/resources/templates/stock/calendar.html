@@ -43,7 +43,7 @@
                                         <!--1個以上だったらリンクかつ、数字を表示、0個だったら×を表示 -->
                                         <!-- 個数チェックの分岐 -->
                                         <!-- 在庫数が1個以上の場合のみ表示する -->
-                                        <a th:if="${val} gt 0" th:text="${val}" th:href="@{/rental/add(rentalDay=${#dates.format(#dates.create(targetYear, targetMonth,i.index - 1 ) , ('yyyy-MM-dd'))},val=${stocks.get(stat.index).get(0)})}"></a>
+                                        <a th:if="${val} gt 0" th:text="${val}" th:href="@{/rental/add(rentalDay=${#dates.format(#dates.create(targetYear, targetMonth,i.index - 1 ) , ('yyyy-MM-dd'))},title=${stocks.get(stat.index).get(0)})}"></a>
                                         <p th:unless="${val} gt 0" th:text="'×'"></p>
                                     </div>
                                 </td>

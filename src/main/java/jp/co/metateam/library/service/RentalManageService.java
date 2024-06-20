@@ -6,6 +6,7 @@ import java.util.Date;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -17,12 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import jp.co.metateam.library.model.Account;
+import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.RentalManageDto;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.repository.AccountRepository;
+import jp.co.metateam.library.repository.BookMstRepository;
 import jp.co.metateam.library.repository.RentalManageRepository;
 import jp.co.metateam.library.repository.StockRepository;
+
 import jp.co.metateam.library.values.RentalStatus;
 
 @Service
@@ -31,15 +35,18 @@ public class RentalManageService {
     private final AccountRepository accountRepository;
     private final RentalManageRepository rentalManageRepository;
     private final StockRepository stockRepository;
+    private final BookMstRepository bookMstRepository;
 
     @Autowired
     public RentalManageService(
             AccountRepository accountRepository,
             RentalManageRepository rentalManageRepository,
-            StockRepository stockRepository) {
+            StockRepository stockRepository,
+            BookMstRepository bookMstRepository) {
         this.accountRepository = accountRepository;
         this.rentalManageRepository = rentalManageRepository;
         this.stockRepository = stockRepository;
+        this.bookMstRepository = bookMstRepository;
     }
 
     @Transactional
@@ -77,6 +84,21 @@ public class RentalManageService {
     @Transactional
     public long addOtherDates(String stock_id, Date expectedReturnOn, Date expectedRentalOn) {
         return this.rentalManageRepository.addOtherDates(stock_id, expectedReturnOn, expectedRentalOn);
+    }
+
+    @Transactional
+    public List<String> findLendableBook(Date choiceDate, Long id) {
+        return this.stockRepository.findLendableBook(choiceDate, id);
+    }
+
+    @Transactional
+    public List<String> findBookStockAvailable(Long id) {
+        return this.stockRepository.findBookStockAvailable(id);
+    }
+    
+    @Transactional
+	public List<BookMst> findByBookTitle(String title){
+        return this.bookMstRepository.findByBookTitle(title);
     }
 
     @Transactional
@@ -175,6 +197,35 @@ public class RentalManageService {
             }
         }
         return null;
+    }
+
+    public String getStockId (Date choiceDate, String title) {
+
+        /*
+         * １、タイトルからbook_id
+         * ２、１のidとbookmstのbookidに紐づく、かつ削除フラグnull在庫管理番号すべて
+         * ３、貸出ステータスが0,1かつ"rentalDay"かぶっているの全レコード取得
+         * ４，貸出可能な在庫情報=総利用可能在庫情報-３で取得してきた値
+         */
+
+        List<BookMst> bookInfos = this.bookMstRepository.findByBookTitle(title);
+        //貸出可不可両方持ってる
+        List<String> bookStockAvailables = this.stockRepository.findBookStockAvailable(bookInfos.get(0).getId());
+        //貸出中のデータ取ってる
+        List<String> lendableBooks = this.stockRepository.findLendableBook(choiceDate,bookInfos.get(0).getId());
+
+        //スマートなのはlendableBooks
+        //貸出中の書籍が0件だったらfor文の中を飛ばせる
+        for(String stockId : lendableBooks){
+
+            //入ってたら削除
+            if(bookStockAvailables.contains(stockId)){
+                bookStockAvailables.remove(stockId);
+            }
+        }
+
+        //貸出可能なstockIdを保持しているリストになっているので1つ目を返す
+        return bookStockAvailables.get(0);
     }
 
 }

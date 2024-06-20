@@ -1,5 +1,6 @@
 package jp.co.metateam.library.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +23,15 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     
     List<Stock> findByBookMstIdAndStatus(Long book_id,Integer status);
 
-// 利用可能な総在庫数を取得
-@Query("SELECT s FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 AND s.deletedAt IS NULL")
-List<Stock> findAllAvailableStockData(Long bookId);
+    // 利用可能な総在庫数を取得
+    @Query("SELECT s FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 AND s.deletedAt IS NULL")
+    List<Stock> findAllAvailableStockData(Long bookId);
 
  
-// @Query("SELECT DISTINCT s FROM Stock s LEFT OUTER JOIN RentalManage rm ON s.id = rm.stock.id WHERE ?1 BETWEEN rm.expectedRentalOn AND rm.expectedReturnOn AND s.bookMst.id = ?2 AND s.status = 0 AND deletedAt IS null")
-//   List<Stock> lendableBook(Date choiceDate, Long id);
+    @Query("SELECT DISTINCT s.id FROM Stock s LEFT OUTER JOIN RentalManage rm ON s.id = rm.stock.id WHERE ?1 BETWEEN rm.expectedRentalOn AND rm.expectedReturnOn AND s.bookMst.id = ?2 AND s.status = 0 AND deletedAt IS null")
+     List<String> findLendableBook(Date choiceDate, Long id);
 
-// @Query("SELECT s FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 " + "AND deletedAt IS null")
-//   List<Stock> bookStockAvailable(Long id);
+    @Query("SELECT s.id FROM Stock s WHERE s.status = 0 AND s.bookMst.id = ?1 AND deletedAt IS null")
+     List<String> findBookStockAvailable(Long id);
 
 }

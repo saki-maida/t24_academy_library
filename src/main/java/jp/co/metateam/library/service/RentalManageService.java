@@ -3,7 +3,6 @@ package jp.co.metateam.library.service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Date;
-import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;

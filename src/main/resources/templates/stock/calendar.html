@@ -13,11 +13,20 @@
             <div class="inner_contens">
                 <div class="page_title">在庫カレンダー</div>
                 <div class="month_change mb30">
-                    <div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth-1})}">前月</a></div>
-                    <div th:text="${targetYear + '年' + targetMonth + '月'}"></div>
-                    <div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth+1})}">翌月</a></div>
+                    <!--<div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth-1})}">前月</a></div>-->
+                     <!--<div th:text="${targetYear + '年' + targetMonth + '月'}"></div>-->
+                     <!--<div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth+1})}">翌月</a></div>-->
+                <!--</div>-->
+                <div>
+                    <a th:if="${targetMonth == 1}" th:href="@{/stock/calendar(year=${targetYear-1},month=12)}">前月</a>
+                    <a th:if="${targetMonth != 1}" th:href="@{/stock/calendar(year=*{targetYear},month=${targetMonth-1})}">前月</a>
                 </div>
-
+                    <div th:text="${targetYear + '年' + targetMonth + '月'}"></div>
+                <div>
+                    <a th:if="${targetMonth == 12}" th:href="@{/stock/calendar(year=${targetYear+1},month=1)}">翌月</a>
+                    <a th:if="${targetMonth != 12}" th:href="@{/stock/calendar(year=${targetYear},month=${targetMonth+1})}">翌月</a>
+                </div>
+                </div>
                 <div class="table_wrapper">
                     <table id="calendar_table">
                         <colgroup>

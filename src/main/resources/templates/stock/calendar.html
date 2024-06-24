@@ -13,11 +13,20 @@
             <div class="inner_contens">
                 <div class="page_title">在庫カレンダー</div>
                 <div class="month_change mb30">
-                    <div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth-1})}">前月</a></div>
-                    <div th:text="${targetYear + '年' + targetMonth + '月'}"></div>
-                    <div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth+1})}">翌月</a></div>
+                    <!--<div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth-1})}">前月</a></div>-->
+                     <!--<div th:text="${targetYear + '年' + targetMonth + '月'}"></div>-->
+                     <!--<div><a th:href="@{/stock/calendar(year=2024,month=*{targetMonth+1})}">翌月</a></div>-->
+                <!--</div>-->
+                <div>
+                    <a th:if="${targetMonth == 1}" th:href="@{/stock/calendar(year=${targetYear-1},month=12)}">前月</a>
+                    <a th:if="${targetMonth != 1}" th:href="@{/stock/calendar(year=*{targetYear},month=${targetMonth-1})}">前月</a>
                 </div>
-
+                    <div th:text="${targetYear + '年' + targetMonth + '月'}"></div>
+                <div>
+                    <a th:if="${targetMonth == 12}" th:href="@{/stock/calendar(year=${targetYear+1},month=1)}">翌月</a>
+                    <a th:if="${targetMonth != 12}" th:href="@{/stock/calendar(year=${targetYear},month=${targetMonth+1})}">翌月</a>
+                </div>
+                </div>
                 <div class="table_wrapper">
                     <table id="calendar_table">
                         <colgroup>
@@ -36,9 +45,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
-                                <td th:each="stock, stat : ${stocks}" th:text="${stock}"></td>
+                            <tr th:each="stock, stat : ${stocks}"> <!--ストックスの要素をストックが一個ずつ取り出してる -->
+                                <td th:each="val, i : ${stock}"> <!--valとindexがわかる --><!--iが回数 -->
+                                    <p th:if="${i.index lt 2}" th:text="${val}"></p><!--1回目タイトル、２回目総在庫数はそのまま表示 --><!--２回目より小さかったらそのまま表示 -->
+                                    <div th:unless="${i.index lt 2}">
+                                        <!--1個以上だったらリンクかつ、数字を表示、0個だったら×を表示 -->
+                                        <!-- 個数チェックの分岐 -->
+                                        <!-- 在庫数が1個以上の場合のみ表示する -->
+                                        <a th:if="${val} gt 0" th:text="${val}" th:href="@{/rental/add(rentalDay=${#dates.format(#dates.create(targetYear, targetMonth,i.index - 1 ) , ('yyyy-MM-dd'))},title=${stocks.get(stat.index).get(0)})}"></a>
+                                        <p th:unless="${val} gt 0" th:text="'×'"></p>
+                                    </div>
+                                </td>
+                            <!-- FIXME ControllerやService側の処理とともに表示方法を考える -->
                             </tr>
                         </tbody>
                     </table>

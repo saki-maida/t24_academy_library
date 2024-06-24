@@ -1,11 +1,12 @@
 package jp.co.metateam.library.service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,20 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jp.co.metateam.library.constants.Constants;
 import jp.co.metateam.library.model.BookMst;
+import jp.co.metateam.library.model.RentalManage;
 import jp.co.metateam.library.model.Stock;
 import jp.co.metateam.library.model.StockDto;
 import jp.co.metateam.library.repository.BookMstRepository;
+import jp.co.metateam.library.repository.RentalManageRepository;
 import jp.co.metateam.library.repository.StockRepository;
 
 @Service
 public class StockService {
     private final BookMstRepository bookMstRepository;
     private final StockRepository stockRepository;
+    private final RentalManageRepository rentalManageRepository;
 
     @Autowired
-    public StockService(BookMstRepository bookMstRepository, StockRepository stockRepository){
+    public StockService(BookMstRepository bookMstRepository, StockRepository stockRepository,RentalManageRepository rentalManageRepository){
         this.bookMstRepository = bookMstRepository;
         this.stockRepository = stockRepository;
+        this.rentalManageRepository = rentalManageRepository;
     }
 
     @Transactional
@@ -46,6 +51,31 @@ public class StockService {
     @Transactional
     public Stock findById(String id) {
         return this.stockRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
+    public List<BookMst> findAllBookData() {
+        List<BookMst> findAllBookData = this.bookMstRepository.findAllBookData();
+
+        return  findAllBookData;
+    }
+
+    @Transactional
+    public List<Stock> findAllAvailableStockData(Long bookId) {
+        return this.stockRepository.findAllAvailableStockData(bookId);
+    }
+
+    @Transactional
+    public Long scheduledRentaWaitData(Date day, List<String>stock_id) {
+        return this.rentalManageRepository.scheduledRentaWaitData(day, stock_id);
+    }
+
+    @Transactional
+    public long scheduledRentalingData(Date date, List<String> stockId) {
+      List<RentalManage> unavailableStockLists = this.rentalManageRepository.scheduledRentalingData(date, stockId);
+      long unavailableStockNum =unavailableStockLists.size();
+ 
+      return unavailableStockNum;
     }
 
     @Transactional 
@@ -105,19 +135,63 @@ public class StockService {
         return daysOfWeek;
     }
 
-    public List<String> generateValues(Integer year, Integer month, Integer daysInMonth) {
-        // FIXME ここで各書籍毎の日々の在庫を生成する処理を実装する
-        // FIXME ランダムに値を返却するサンプルを実装している
-        String[] stockNum = {"1", "2", "3", "4", "×"};
-        Random rnd = new Random();
-        List<String> values = new ArrayList<>();
-        values.add("スッキリわかるJava入門 第4版"); // 対象の書籍名
-        values.add("10"); // 対象書籍の在庫総数
-        
-        for (int i = 1; i <= daysInMonth; i++) {
-            int index = rnd.nextInt(stockNum.length);
-            values.add(stockNum[index]);
+    public List<List<String>> generateValues(Integer year, Integer month, Integer daysInMonth) {
+        //2次元のStringをつめるbigValuesっていう箱を作る
+        List<List<String>> bigValues = new ArrayList<>();
+        //BookMstテーブルのすべての書籍情報をリストに追加
+        List<BookMst> bookData = findAllBookData();
+        LocalDate today = LocalDate.now();
+    
+        //書籍数分ループ
+        for (BookMst book : bookData){
+            //bigValuesっていう大きな箱の中の各書籍の情報を入れるbookInfoって箱
+            List<String> bookInfo = new ArrayList<>();
+            //bookInfoって箱にループしてきたタイトルをつめてる
+            bookInfo.add(book.getTitle());
+
+            //利用可能総在庫数
+            List<Stock> availableStocks = findAllAvailableStockData(book.getId());
+            //数字を文字列に変換　　　　　　　　　　　　　　↓.sizeでavailableStocksの中身を数えてる
+            String availableStocksCount = String.valueOf(availableStocks.size());
+            //数えたやつをbookInfoに追加
+            bookInfo.add(availableStocksCount);
+
+
+            List<String> stockIdList = new ArrayList<>();
+            for(Stock stock : availableStocks) {
+             //stockIdって箱にループしてきたIdをつめてる
+                stockIdList.add(stock.getId());
+            }
+            
+
+            //日付分ループ
+             for(int dayOfMonth = 1; dayOfMonth <= daysInMonth; dayOfMonth++){
+                //対象の日付を取得
+                LocalDate localDate = LocalDate.of(year,month,dayOfMonth);
+                //LocalDate型のlocalDateををDate型に変換しdateに入れる
+                Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                //日ごとの利用可能在庫数
+                Long scheduledRentaWaitDataCount = scheduledRentaWaitData(date,stockIdList);
+                Long scheduledRentalingDataCount = scheduledRentalingData(date,stockIdList);
+
+                Long total =  availableStocks.size() - (scheduledRentaWaitDataCount + scheduledRentalingDataCount);
+                //計算してtotalに入れたデータを String型のtotalValueに変換
+                String totalValue = Long.toString(total);
+
+                if (today.isAfter(localDate)) {
+                    totalValue = "0";
+                }
+                
+                //取得した日付ごとの利用可能在庫数をbookInfoに入れる
+                bookInfo.add(totalValue);
+                //bookInfo.addAll(stockIdList);
+             }
+
+            bigValues.add(bookInfo);
+
         }
-        return values;
+        return bigValues;
     }
 }
+
+ 

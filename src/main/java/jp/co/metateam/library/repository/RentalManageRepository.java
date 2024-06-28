@@ -9,9 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import jp.co.metateam.library.model.RentalManage;
-import jp.co.metateam.library.model.Stock;
-
-import jp.co.metateam.library.service.StockService;
 
 @Repository
 public interface RentalManageRepository extends JpaRepository<RentalManage, Long> {
@@ -23,7 +20,7 @@ public interface RentalManageRepository extends JpaRepository<RentalManage, Long
     Long otherReservations(String stock_id,Long id);
 
     @Query("SELECT COUNT (rm) FROM RentalManage rm WHERE rm.stock.id = ?1 AND rm.status IN (0,1) AND rm.id <> ?2 AND ( rm.expectedRentalOn > ?3 OR rm.expectedReturnOn < ?4)")
-    Long otherDates(String stock_id,Long id,Date expectedReturnOn,Date expectedRentalOn);
+    Long otherDates(String stock_id, Long id, Date expectedReturnOn, Date expectedRentalOn);
 
     @Query("SELECT COUNT (rm) FROM RentalManage rm WHERE rm.stock.id = ?1 AND rm.status IN (0,1)")
     Long addOtherReservations(String stock_id);

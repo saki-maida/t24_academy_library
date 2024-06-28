@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import jp.co.metateam.library.model.BookMst;
-import jp.co.metateam.library.service.StockService;
 
 import java.math.BigInteger;
 import java.util.List;

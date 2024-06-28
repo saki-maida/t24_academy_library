@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -50,28 +49,28 @@ public class RentalManageDto {
 
     private Account account;
 
-    public Optional<String> validateStatus (Integer prevstatus) {
+    public String validateStatus (Integer prevstatus) {
 
         if(prevstatus == RentalStatus.RENT_WAIT.getValue()&& this.status== RentalStatus.RETURNED.getValue()){
-            return Optional.of("貸出ステータスは貸出待ちから返却済みにできません");
+            return "貸出ステータスは貸出待ちから返却済みにできません";
         }else if(prevstatus == RentalStatus.RENTAlING.getValue()&& this.status== RentalStatus.RENT_WAIT.getValue()){
-            return Optional.of("貸出ステータスは貸出中から貸出待ちにできません");
+            return "貸出ステータスは貸出中から貸出待ちにできません";
         }else if(prevstatus == RentalStatus.RENTAlING.getValue()&& this.status== RentalStatus.CANCELED.getValue()){
-            return Optional.of("貸出ステータスは貸出中からキャンセルにできません");
+            return "貸出ステータスは貸出中からキャンセルにできません";
         }else if(prevstatus == RentalStatus.CANCELED.getValue()&& this.status== RentalStatus.RENT_WAIT.getValue()){
-            return Optional.of("貸出ステータスはキャンセルから貸出待ちにできません");
+            return "貸出ステータスはキャンセルから貸出待ちにできません";
         }else if(prevstatus == RentalStatus.CANCELED.getValue()&& this.status== RentalStatus.RENTAlING.getValue()){
-            return Optional.of("貸出ステータスはキャンセルから貸出中にできません");   
+            return "貸出ステータスはキャンセルから貸出中にできません";   
         }else if(prevstatus == RentalStatus.CANCELED.getValue()&& this.status== RentalStatus.RETURNED.getValue()){
-            return Optional.of("貸出ステータスはキャンセルから返却済みにできません"); 
+            return "貸出ステータスはキャンセルから返却済みにできません"; 
         }else if(prevstatus == RentalStatus.RETURNED.getValue()&& this.status== RentalStatus.RENT_WAIT.getValue()){
-            return Optional.of ("貸出ステータスは返却済みから貸出待ちにできません");
+            return "貸出ステータスは返却済みから貸出待ちにできません";
         }else if(prevstatus == RentalStatus.RETURNED.getValue()&& this.status== RentalStatus.RENTAlING.getValue()){
-            return Optional.of( "貸出ステータスは返却済みから貸出中にできません");   
+            return  "貸出ステータスは返却済みから貸出中にできません";   
         }else if(prevstatus == RentalStatus.RETURNED.getValue()&& this.status== RentalStatus.CANCELED.getValue()){
-            return Optional.of("貸出ステータスは返却済みからキャンセルにできません");
+            return "貸出ステータスは返却済みからキャンセルにできません";
         }
-        return Optional.empty();
+        return null;
     }
     public String DateError(RentalManage rentalManage, RentalManageDto rentalManageDto) {
  
@@ -93,7 +92,7 @@ public class RentalManageDto {
         }
         if (prestatus == 1 && poststatus == 2) {
           if (!expectedReturnOn.equals(nowDate)) {
-            return "現在日付に選択してください";
+            return "現在の日付を選択してください";
           }
         }
         return null;

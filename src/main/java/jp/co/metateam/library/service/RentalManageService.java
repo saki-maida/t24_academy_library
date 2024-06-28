@@ -5,17 +5,9 @@ import java.util.List;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.validation.Valid;
 import jp.co.metateam.library.model.Account;
 import jp.co.metateam.library.model.BookMst;
 import jp.co.metateam.library.model.RentalManage;
@@ -208,9 +200,9 @@ public class RentalManageService {
          */
 
         List<BookMst> bookInfos = this.bookMstRepository.findByBookTitle(title);
-        //貸出可不可両方持ってる
+        //貸出
         List<String> bookStockAvailables = this.stockRepository.findBookStockAvailable(bookInfos.get(0).getId());
-        //貸出中のデータ取ってる
+        //貸出中の期間被ってるデータ取ってる
         List<String> lendableBooks = this.stockRepository.findLendableBook(choiceDate,bookInfos.get(0).getId());
 
         //スマートなのはlendableBooks

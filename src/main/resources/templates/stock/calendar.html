@@ -41,7 +41,8 @@
                                 <th class="header_days" th:colspan="${daysInMonth}" th:text="${targetYear + '年' + targetMonth + '月'}"></th>
                             </tr>
                             <tr class="days">
-                                <th th:each="day : ${daysOfWeek}" th:text="${day}"></th>
+                                <th th:each="day : ${daysOfWeek}" th:text="${day}"
+                                th:classappend="${#strings.contains(day, '土') ? 'saturday' : (#strings.contains(day, '日') ? 'sunday' : '')}"></th>
                             </tr>
                         </thead>
                         <tbody>

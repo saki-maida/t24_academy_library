@@ -12,6 +12,13 @@
             <div class="inner_contens">
                 <div class="page_title">貸出一覧</div>
                 <div class="add_btn">
+                   <select id="rentalStatus" class="form_input" name="status">
+                        <option value="">ステータスを選択</option>
+                        <option th:each="status : ${rentalStatus}" th:value="${status.value}"
+                            th:text="${status.text}" th:selected="${status.value == rentalManageDto.status}">
+                        </option>
+                    </select>
+                    <button type="filter" id="filter_btn">絞込</button>
                     <a th:href="@{/rental/add}">
                         <span><img src="../images/icons/add.png" alt="add"/></span>
                         <span>貸出登録</span>

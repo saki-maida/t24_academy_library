@@ -97,4 +97,14 @@ public class RentalManageDto {
         }
         return null;
       }
+
+    public String isReturnDateError(RentalManageDto rentalManageDto){
+        Date expectedRentalOn = rentalManageDto.getExpectedRentalOn();
+        Date expectedReturnOn = rentalManageDto.getExpectedReturnOn();
+
+        if(expectedRentalOn.after(expectedReturnOn)){
+            return "返却予定日は貸出予定日より後の日付にしてください";
+        }
+        return null;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,6 +91,15 @@ public class RentalManageService {
     @Transactional
 	public List<BookMst> findByBookTitle(String title){
         return this.bookMstRepository.findByBookTitle(title);
+    }
+
+    @Transactional
+	public  List<RentalManage> getFilter(Integer status){
+        return this.rentalManageRepository.getFilter(status);
+    }
+    @Transactional
+	public  Long countFilter(Integer status){
+        return this.rentalManageRepository.countFilter(status);
     }
 
     @Transactional

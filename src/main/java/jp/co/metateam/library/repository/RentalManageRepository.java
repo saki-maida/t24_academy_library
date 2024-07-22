@@ -38,4 +38,14 @@ public interface RentalManageRepository extends JpaRepository<RentalManage, Long
     @Query(value ="SELECT * FROM rental_manage as rm WHERE CAST(rm.rentaled_At as date) <= :date AND :date <= rm.expected_return_on AND rm.stock_id IN(:stockId) AND rm.status= 1",nativeQuery = true)
     List<RentalManage> scheduledRentalingData(Date date, List<String> stockId);
 
+    //追加機能
+    //ステータス絞込
+    @Query("SELECT rm FROM RentalManage rm WHERE rm.status = ?1")
+    List<RentalManage> getFilter(Integer status);
+
+    //選択されたステータスがあるか数を数える
+    @Query("SELECT COUNT (rm) FROM RentalManage rm WHERE rm.status = ?1")
+    Long countFilter(Integer status);
+
+
 }

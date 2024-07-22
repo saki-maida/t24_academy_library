@@ -66,11 +66,37 @@ public class RentalManageController {
         // 貸出一覧画面に渡すデータをmodelに追加
 
         model.addAttribute("rentalManageList", rentalManageList);
+        model.addAttribute("rentalStatus", RentalStatus.values());
 
         // 貸出一覧画面に遷移
         return "rental/index";
     }
+    
 
+    @GetMapping("/rental/statusFilter")
+    public String statusFilter(@RequestParam(name = "status_filter", required = false) Integer status, Model model) {
+        List<RentalManage> rentalManageList;
+    
+        // ステータスが指定されている場合
+        if (status != null) {
+            rentalManageList = this.rentalManageService.getFilter(status);
+            
+            // 指定されたステータスの件数が0件の場合
+            if (rentalManageList.isEmpty()) {
+                model.addAttribute("errorMessage","選択されたステータス情報はありません");
+            }
+        } else {
+            // ステータスが指定されていない場合、すべての貸出情報を取得
+            rentalManageList = this.rentalManageService.findAll();
+        }
+    
+       model.addAttribute("rentalManageList", rentalManageList);
+
+        return "rental/index";        
+    }
+
+
+    
     @GetMapping("/rental/add")
     public String add(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date rentalDay,
             @RequestParam(required = false) String title, Model model) {
@@ -97,8 +123,7 @@ public class RentalManageController {
     }
 
     @PostMapping("/rental/add")
-    public String save(@Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result,
-            RedirectAttributes ra) {
+    public String save(@Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result,RedirectAttributes ra) {
         try {
 
             Long addOtherReservations = rentalManageService.addOtherReservations(rentalManageDto.getStockId());
@@ -110,6 +135,13 @@ public class RentalManageController {
                 result.addError(new FieldError("rentalManageDto", "expectedRentalOn", rentalErrorAdd));
                 result.addError(new FieldError("rentalManageDto", "expectedReturnOn", rentalErrorAdd));
             }
+
+            String returnDateError = rentalManageDto.isReturnDateError(rentalManageDto);
+            if(returnDateError !=null){
+                result.addError(new FieldError("rentalManageDto", "expectedReturnOn", returnDateError));
+                throw new RuntimeException();
+            }
+
             if (result.hasErrors()) {
                 throw new Exception("Stock unavailable error");
             }
@@ -198,7 +230,12 @@ public class RentalManageController {
             }
         }
 
-            
+        String returnDateError = rentalManageDto.isReturnDateError(rentalManageDto);
+        if(returnDateError !=null){
+            result.addError(new FieldError("rentalManageDto", "expectedReturnOn", returnDateError));
+            throw new RuntimeException();
+        }
+        
         if(result.hasErrors()){
             throw new Exception("Validation error.");
         }

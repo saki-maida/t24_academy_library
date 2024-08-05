@@ -58,3 +58,30 @@
 #manage_table tr th:nth-of-type(4) {
     width: 130px;
 }
+#filter_btn {
+    display: flex;
+    border-radius: 5px;
+    align-items: center;
+    margin-right: 40px;
+    padding: 10px 30px;
+    background-color: #95d7ef;
+    color: #545454;
+    border: none;
+}
+.form_input{
+    margin-right: 10px;
+    padding: 10px 64px;
+    width: 267px;
+    text-align: left;
+}
+.form_input #rentalStatus option:first-child {
+    text-align: left;
+    
+}
+
+.error-message {
+    text-align: right; /* 右寄せにする */
+    margin-top: 10px; /* 適切なマージンを設定 */
+    margin-right: 250px; /* 右側の余白を設定 */
+}
+
